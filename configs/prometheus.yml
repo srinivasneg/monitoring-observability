@@ -1,0 +1,65 @@
+# prometheus.yml — Multi-VM Monitoring Configuration
+#
+# Replace <vm-ip> and instance label values with your actual IPs and names.
+# After editing, restart Prometheus:
+#   docker compose restart prometheus
+#   or: sudo systemctl restart prometheus
+
+global:
+  scrape_interval: 15s       # Default scrape interval
+  evaluation_interval: 15s   # Rule evaluation interval
+
+scrape_configs:
+
+  # ── Linux VM Metrics (Node Exporter) ──────────────────────────────────────
+  - job_name: 'node_exporter'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['<vm1-ip>:9100']
+        labels:
+          instance: 'vm1-name'
+          env: 'production'
+      - targets: ['<vm2-ip>:9100']
+        labels:
+          instance: 'vm2-name'
+          env: 'production'
+      - targets: ['<vm3-ip>:9100']
+        labels:
+          instance: 'vm3-name'
+          env: 'staging'
+    # Add more VMs by copying the pattern above
+
+  # ── Spring Boot Application ────────────────────────────────────────────────
+  - job_name: 'springboot'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['<app-ip>:8080']
+        labels:
+          instance: 'springboot-app'
+          env: 'production'
+
+  # ── Langflow ───────────────────────────────────────────────────────────────
+  - job_name: 'langflow'
+    metrics_path: /metrics
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['<langflow-ip>:7860']
+        labels:
+          instance: 'langflow-prod'
+
+  # ── Node.js Application ────────────────────────────────────────────────────
+  - job_name: 'nodejs'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['<nodejs-ip>:3000']
+        labels:
+          instance: 'nodejs-app'
+
+  # ── Prometheus Self-Monitoring ─────────────────────────────────────────────
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus-server'

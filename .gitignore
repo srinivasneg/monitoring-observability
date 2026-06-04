@@ -1,0 +1,12 @@
+# Logs and reports
+*.log
+maintenance_report_*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit real credentials
+.env
+*.env
+!*.env.example
